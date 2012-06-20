@@ -12,7 +12,9 @@ __PACKAGE__->config(
 		default_realm => 'default',
 		realms => {
 			default => {
-				class => 'Upstream::Headers'
+				credential => {
+					class => 'Upstream::Headers'
+				}
 			}
 		}
 	}

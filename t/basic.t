@@ -17,7 +17,7 @@ my $m = new Test::WWW::Mechanize::Catalyst catalyst_app => 'TestApp';
 # issue a request for /, providing the user header, but no role headers
 
 {
-	my $res = $m->get('/', 'X-Catalyst-Auth-Upstream-User' => 'bob');
+	my $res = $m->get('/', 'X-Catalyst-Credential-Upstream-User' => 'bob');
 
 	my ($has_user, $username, $roles) = split /\n/, $res->content;
 
@@ -29,7 +29,7 @@ my $m = new Test::WWW::Mechanize::Catalyst catalyst_app => 'TestApp';
 # issue a request for /, providing the user and role headers
 
 {
-	my $res = $m->get('/', 'X-Catalyst-Auth-Upstream-User' => 'bob', 'X-Catalyst-Auth-Upstream-Roles' => 'user,admin,tester');
+	my $res = $m->get('/', 'X-Catalyst-Credential-Upstream-User' => 'bob', 'X-Catalyst-Credential-Upstream-Roles' => 'user,admin,tester');
 
 	my ($has_user, $username, $roles) = split /\n/, $res->content;
 
@@ -40,13 +40,13 @@ my $m = new Test::WWW::Mechanize::Catalyst catalyst_app => 'TestApp';
 
 # test that authorization works
 
-$m->get_ok('/protected', { 'X-Catalyst-Auth-Upstream-User' => 'bob', 'X-Catalyst-Auth-Upstream-Roles' => 'user,tester' });
-$m->get_ok('/admin', { 'X-Catalyst-Auth-Upstream-User' => 'bob', 'X-Catalyst-Auth-Upstream-Roles' => 'admin' });
+$m->get_ok('/protected', { 'X-Catalyst-Credential-Upstream-User' => 'bob', 'X-Catalyst-Credential-Upstream-Roles' => 'user,tester' });
+$m->get_ok('/admin', { 'X-Catalyst-Credential-Upstream-User' => 'bob', 'X-Catalyst-Credential-Upstream-Roles' => 'admin' });
 
-ok not $m->get('/protected', { 'X-Catalyst-Auth-Upstream-User' => 'bob' })->is_success;
-ok not $m->get('/protected', { 'X-Catalyst-Auth-Upstream-User' => 'bob', 'X-Catalyst-Auth-Upstream-Roles' => 'tester' })->is_success;
-ok not $m->get('/protected', { 'X-Catalyst-Auth-Upstream-User' => 'bob', 'X-Catalyst-Auth-Upstream-Roles' => 'user' })->is_success;
-ok not $m->get('/admin', { 'X-Catalyst-Auth-Upstream-User' => 'bob', 'X-Catalyst-Auth-Upstream-Roles' => 'user,tester' })->is_success;
+ok not $m->get('/protected', { 'X-Catalyst-Credential-Upstream-User' => 'bob' })->is_success;
+ok not $m->get('/protected', { 'X-Catalyst-Credential-Upstream-User' => 'bob', 'X-Catalyst-Credential-Upstream-Roles' => 'tester' })->is_success;
+ok not $m->get('/protected', { 'X-Catalyst-Credential-Upstream-User' => 'bob', 'X-Catalyst-Credential-Upstream-Roles' => 'user' })->is_success;
+ok not $m->get('/admin', { 'X-Catalyst-Credential-Upstream-User' => 'bob', 'X-Catalyst-Credential-Upstream-Roles' => 'user,tester' })->is_success;
 
 done_testing;
 
