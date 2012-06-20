@@ -3,11 +3,20 @@ package TestApp;
 use strict;
 use warnings;
 
+use Catalyst qw(Authentication Authorization::Roles);
+
 use base 'Catalyst';
 
-use Catalyst 'Authentication', 'Authentication::Realm::OpenAM';
-
-#__PACKAGE__->config(
+__PACKAGE__->config(
+	authentication => {
+		default_realm => 'default',
+		realms => {
+			default => {
+				class => 'Upstream::Headers'
+			}
+		}
+	}
+);
 __PACKAGE__->setup;
 
 1;
