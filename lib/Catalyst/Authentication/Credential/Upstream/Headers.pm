@@ -1,16 +1,28 @@
 package Catalyst::Authentication::Credential::Upstream::Headers;
 
+# ABSTRACT: Catalyst authentication credentials from HTTP headers
+
 use Moose;
 
 has user_header =>
-	isa		=> 'Str',
-	is		=> 'ro',
-	default	=> 'X-Catalyst-Credential-Upstream-User';
+	isa			=> 'Str',
+	is			=> 'ro',
+	default		=> 'X-Catalyst-Credential-Upstream-User';
 
 has role_header =>
-	isa		=> 'Str',
-	is		=> 'ro',
-	default	=> 'X-Catalyst-Credential-Upstream-Roles';
+	isa			=> 'Str',
+	is			=> 'ro',
+	default		=> 'X-Catalyst-Credential-Upstream-Roles';
+
+has role_delimiter =>
+	isa			=> 'Str',
+	is			=> 'ro',
+	default		=> '|';
+
+has use_x500_cn =>
+	isa			=> 'Bool',
+	is			=> 'ro',
+	default		=> 1;
 
 has realm =>
 	isa			=> 'Catalyst::Authentication::Realm',
@@ -36,15 +48,22 @@ sub authenticate
 	# here is mostly marshalling the request headers into user objects
 	# that fit the authentication plugin's interface.
 
-	my $info = undef;
+	my $user		= undef;
+	my $delimiter	= $self->role_delimiter;
 
 	if (my $username = $c->req->headers->header($self->user_header)) {
-		my @roles = split /, */, $c->req->headers->header($self->role_header) || '';
+		my @roles = split /\Q$delimiter\E */, $c->req->headers->header($self->role_header) || '';
 
-		$info = { id => $username, roles => \@roles };
+		# attempt to extract the cn (common name) component of anything
+		# that looks like it might be an X.501 distinguished name
+
+		@roles = map { { split /[;,= ]+/ }->{cn} || $_ } @roles
+			if $self->use_x500_cn;
+
+		$user = { id => $username, roles => \@roles };
 	}
 
-	return $info ? $self->realm->find_user($info) : undef;
+	return $user ? $self->realm->find_user($user) : undef;
 }
 
 1;
@@ -66,8 +85,19 @@ Catalyst::Authentication::Credential::Upstream::Headers
              upstream => {
                  credential => {
                      class => 'Upstream::Headers',
-                     user_header => 'X-Header-Containing-Username',
-                     role_header => 'X-Header-Containing-Comma-Separated-List-Of-Roles'
+
+                     # name of header containing the user id
+                     user_header => 'X-Catalyst-Credential-Upstream-User',
+
+                     # name of header containing a delimited list of user roles
+                     role_header => 'X-Catalyst-Credential-Upstream-Roles',
+
+                     # the delimiter to use when parsing roles
+                     role_delimiter => '|',
+
+                     # boolean value indicating whether or not to attempt to
+                     # parse roles as X.500 distinguished names
+                     use_x500_cn => 1
                  }
              }
          }
