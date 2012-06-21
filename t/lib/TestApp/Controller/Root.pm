@@ -26,7 +26,7 @@ sub defaut : Path
 
 	push @a, $c->user ? 1 : 0;									# has_user
 	push @a, $c->user ? $c->user->id : '';						# user id
-	push @a, $c->user ? join '|', sort $c->user->roles : '';	# user roles
+	push @a, $c->user ? join ';', sort $c->user->roles : '';	# user roles
 
 	$c->res->body(join "\n", @a);
 }
