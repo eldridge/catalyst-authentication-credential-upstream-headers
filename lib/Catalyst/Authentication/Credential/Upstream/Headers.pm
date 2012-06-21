@@ -106,6 +106,23 @@ Catalyst::Authentication::Credential::Upstream::Headers
 
 =head1 DESCRIPTION
 
+The Upstream::Headers credential class provides for passing identity
+metadata to the application via HTTP headers.  These headers might be
+appended by an HTTP front-end that performs authentication services
+before reverse proxying to the application.
+
+In addition to the username, a list of delimited roles may be passed.
+The delimiter is configurable by setting the role_delimiter property
+in the config.  By default, the pipe character ('|') is used for the
+delimiter.
+
+By default, roles are crudely checked to see if they look like X.501
+distinguished names.  If so, the commonName (cn) component of the DN
+is returned instead of the full DN.  This behavior may be disabled by
+setting use_x500_cn to false in the config.
+
+=head1 HISTORY
+
 This authentication credential for Catalyst::Plugin::Authentication
 was originally implemented to support OpenAM in a way that fit into
 the framework provided by C::P::A.
