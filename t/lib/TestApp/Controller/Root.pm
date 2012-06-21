@@ -51,4 +51,12 @@ sub protected : Local
 	$c->res->body('OK');
 }
 
+sub headers : Local
+{
+	my $self	= shift;
+	my $c		= shift;
+
+	$c->res->body($c->req->headers->as_string);
+}
+
 1;
